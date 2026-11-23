@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d18">
+<title>ScorePulse — Global Live Sports Scores</title>
+<style>
+:root{--bg:#080d18;--panel:#121c2e;--panel2:#1a2941;--line:#2a3953;--muted:#9aa9bf;--text:#f5f7fb;--green:#54e2a2;--red:#ff788b;--blue:#83adff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% -20%,#233c63 0,transparent 40%),var(--bg);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif}
+main{max-width:1180px;margin:auto;padding:24px 18px 55px}.head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:42px}.brand{font-size:22px;font-weight:900;letter-spacing:-.7px;display:flex;align-items:center;gap:10px}.logo{background:linear-gradient(135deg,var(--green),#70a5ff);color:#07121b;border-radius:12px;width:39px;height:39px;display:grid;place-items:center}.small{color:var(--muted);font-size:12px}
+.hero{margin-bottom:28px}.tag{color:var(--green);font-size:11px;font-weight:850;letter-spacing:2px}.hero h1{font-size:clamp(36px,6vw,60px);letter-spacing:-2.5px;line-height:1.03;margin:10px 0}.hero p{color:var(--muted);max-width:650px;line-height:1.6;margin:0}
+.controls{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:28px 0 14px}.tabs,.filters,.tools{display:flex;gap:7px;flex-wrap:wrap}
+button,select,input{border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--muted);padding:10px 13px;font-weight:700;font-size:13px}button{cursor:pointer}button.active{background:var(--green);border-color:var(--green);color:#07150f}button:hover,select:hover{border-color:#718fb9;color:var(--text)}select{cursor:pointer;max-width:260px}
+.tools{margin:12px 0 18px}.tools input{min-width:220px;flex:1}.summary{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:12px;margin:15px 2px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.match{background:linear-gradient(145deg,#17243a,#101827);border:1px solid var(--line);border-radius:16px;padding:17px;min-width:0}.matchtop{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:17px}.league{font-size:11px;color:var(--muted);font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pill{font-size:10px;font-weight:900;letter-spacing:.6px;padding:5px 8px;border-radius:20px;background:#27334a;color:#c6d2e5;white-space:nowrap}.pill.live{background:#3b202c;color:#ff8c9d}.teams{display:grid;grid-template-columns:1fr auto 1fr;gap:9px;align-items:center}.team{text-align:center;min-width:0}.name{font-size:14px;font-weight:800;overflow-wrap:anywhere;line-height:1.35}.score{font-size:25px;font-weight:900;margin-top:7px;letter-spacing:-.5px}.vs{font-size:10px;color:#71819b;font-weight:900}.detail{text-align:center;color:var(--muted);font-size:11px;margin-top:14px;min-height:15px}.state{grid-column:1/-1;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:36px 18px;color:var(--muted);line-height:1.65}.state b{display:block;color:var(--text);margin-bottom:6px}
+.settings{margin-top:26px;background:#0e1727;border:1px solid var(--line);border-radius:14px;padding:15px}.settings summary{cursor:pointer;font-weight:800;font-size:13px}.settings p{font-size:12px;color:var(--muted);line-height:1.6}.keyrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.keyrow label{font-size:11px;color:var(--muted);display:grid;gap:6px}.keyrow input{width:100%;min-width:0}.warning{color:#ffc477!important}.footer{border-top:1px solid var(--line);margin-top:34px;padding-top:18px;color:var(--muted);font-size:11px;line-height:1.6}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.head{margin-bottom:32px}.hero h1{letter-spacing:-1.5px}main{padding:18px 13px 38px}.keyrow{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<header class="head"><div class="brand"><div class="logo">↗</div>ScorePulse</div><div class="small">GLOBAL SPORTS • LIVE UPDATES</div></header>
+<section class="hero"><div class="tag">EVERY MATCH. ONE PLACE.</div><h1>Stay in the <span style="color:var(--green)">game.</span></h1><p>Live cricket and football scores, international tournaments, league fixtures and results — all in one scoreboard.</p></section>
+<section class="controls">
+ <div class="tabs"><button class="sport active" data-sport="cricket">🏏 Cricket</button><button class="sport" data-sport="football">⚽ Football</button></div>
+ <div class="filters"><button class="status active" data-status="all">All</button><button class="status" data-status="live">🔴 Live</button><button class="status" data-status="upcoming">Upcoming</button><button class="status" data-status="finished">Results</button></div>
+</section>
+<div class="tools"><select id="competition"><option value="">All competitions</option></select><input id="search" placeholder="Search a team or competition…"><button id="reload">↻ Refresh</button></div>
+<div class="summary"><span id="count">Add API keys to load scores</span><span id="updated">Not connected</span></div>
+<section class="grid" id="grid" aria-live="polite"><div class="state"><b>Welcome to ScorePulse</b>Open “API setup” below and add your provider keys to load live scores.</div></section>
+
+<details class="settings" open>
+<summary>⚙ API setup — connect live score providers</summary>
+<p>Keys are entered in this browser and kept only for this tab session. Do not publish this file with real API keys embedded. For a genuinely public production website, put API calls behind a server so visitors cannot steal your keys.</p>
+<div class="keyrow">
+<label>API-Football key (API-Sports)<input id="footballKey" type="password" placeholder="Paste API-Football key"></label>
+<label>Sportmonks Cricket token<input id="cricketKey" type="password" placeholder="Paste Sportmonks token"></label>
+</div>
+<p class="warning">Provider plans determine competition coverage and live-update limits. Confirm that your subscription includes IPL, ICC events, FIFA tournaments and the leagues you want to display.</p>
+<button id="saveKeys">Use keys and load scores</button>
+</details>
+
+<footer class="footer">ScorePulse is an independent sports scoreboard and is not affiliated with the ICC, FIFA, IPL, UEFA or any league. Match data and tournament coverage are supplied by third-party providers and depend on their plans and terms. This one-file version calls providers directly from your browser; some providers may block browser requests (CORS). If so, a small backend is required.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let sport="cricket",statusFilter="all",matches=[],keys={football:"",cricket:""};
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function statusName(s){return s==="live"?"● LIVE":s==="finished"?"FINISHED":"UPCOMING"}
+function render(){
+ const comp=$("competition").value,term=$("search").value.trim().toLowerCase();
+ const list=matches.filter(m=>(statusFilter==="all"||m.status===statusFilter)&&(!comp||String(m.competitionId)===comp)&&(!term||(`${m.home} ${m.away} ${m.competition}`).toLowerCase().includes(term)));
+ $("count").textContent=`${list.length} ${sport} matches`;
+ if(!list.length){$("grid").innerHTML='<div class="state"><b>No matching games found</b>Try another filter or check again later.</div>';return}
+ $("grid").innerHTML=list.map(m=>`<article class="match"><div class="matchtop"><span class="league">${esc(m.competition)}</span><span class="pill ${m.status==="live"?"live":""}">${statusName(m.status)}</span></div><div class="teams"><div class="team"><div class="name">${esc(m.home)}</div><div class="score">${esc(m.homeScore??"—")}</div></div><div class="vs">VS</div><div class="team"><div class="name">${esc(m.away)}</div><div class="score">${esc(m.awayScore??"—")}</div></div></div><div class="detail">${esc(m.detail||m.date||"")}</div></article>`).join("");
+}
+function fillCompetitions(){
+ const sel=$("competition"),old=sel.value,items=[...new Map(matches.map(m=>[String(m.competitionId||m.competition),{id:String(m.competitionId||m.competition),name:m.competition}])).values()];
+ sel.innerHTML='<option value="">All competitions</option>'+items.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+ if(items.some(x=>x.id===old))sel.value=old;
+}
+function footballStatus(short){
+ if(["1H","2H","HT","ET","BT","P","LIVE"].includes(short))return "live";
+ if(["FT","AET","PEN"].includes(short))return "finished";
+ return "upcoming";
+}
+async function getFootball(){
+ if(!keys.football)throw Error("Add your API-Football key in API setup.");
+ const headers={"x-apisports-key":keys.football},today=new Date().toISOString().slice(0,10);
+ const urls=["https://v3.football.api-sports.io/fixtures?live=all",`https://v3.football.api-sports.io/fixtures?date=${today}&timezone=Asia%2FKolkata`];
+ const payloads=await Promise.all(urls.map(async url=>{const r=await fetch(url,{headers});if(!r.ok)throw Error("API-Football error "+r.status);return r.json()}));
+ const all=payloads.flatMap(p=>p.response||[]);
+ return [...new Map(all.map(x=>[x.fixture?.id,x])).values()].map(x=>({
+  id:x.fixture?.id,competition:x.league?.name||"Football",competitionId:x.league?.id,
+  home:x.teams?.home?.name||"Home",away:x.teams?.away?.name||"Away",
+  homeScore:x.goals?.home??"—",awayScore:x.goals?.away??"—",
+  status:footballStatus(x.fixture?.status?.short),
+  date:x.fixture?.date?new Date(x.fixture.date).toLocaleString():"",
+  detail:[x.fixture?.status?.long,x.fixture?.status?.elapsed!=null?x.fixture.status.elapsed+"'":""].filter(Boolean).join(" · ")
+ }));
+}
+async function getCricket(){
+ if(!keys.cricket)throw Error("Add your Sportmonks Cricket token in API setup.");
+ const root="https://cricket.sportmonks.com/api/v2.0",token=encodeURIComponent(keys.cricket);
+ const url=`${root}/livescores?api_token=${token}&include=localteam,visitorteam,league,runs`;
+ const r=await fetch(url);if(!r.ok)throw Error("Sportmonks error "+r.status);
+ const data=await r.json();
+ return (data.data||[]).map(x=>{
+  const raw=String(x.status||"").toLowerCase(),live=x.live===true||/live|innings|stumps|lunch|tea|day \\d/.test(raw),finished=/finished|complete|result|abandon|no result|draw/.test(raw);
+  const runs=Array.isArray(x.runs)?x.runs:[],latest=runs[runs.length-1];
+  return {id:x.id,competition:x.league?.name||x.league_name||"Cricket",competitionId:x.league_id||x.league?.id,
+   home:x.localteam?.name||"Team 1",away:x.visitorteam?.name||"Team 2",
+   homeScore:x.localteam_score??latest?.score??"—",awayScore:x.visitorteam_score??"—",
+   status:live?"live":finished?"finished":"upcoming",date:x.starting_at?new Date(x.starting_at).toLocaleString():"",
+   detail:x.status||""};
+ });
+}
+async function load(){
+ $("grid").innerHTML='<div class="state">Fetching the latest scores…</div>';
+ try{
+  matches=sport==="football"?await getFootball():await getCricket();
+  fillCompetitions();render();
+  $("updated").textContent="Updated "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+ }catch(e){$("grid").innerHTML=`<div class="state"><b>Could not load scores</b>${esc(e.message)}<br>Check your API key, plan and browser CORS support.</div>`;$("count").textContent="Data unavailable";$("updated").textContent="Update failed";}
+}
+document.querySelectorAll(".sport").forEach(b=>b.onclick=()=>{document.querySelectorAll(".sport").forEach(x=>x.classList.toggle("active",x===b));sport=b.dataset.sport;load()});
+document.querySelectorAll(".status").forEach(b=>b.onclick=()=>{document.querySelectorAll(".status").forEach(x=>x.classList.toggle("active",x===b));statusFilter=b.dataset.status;render()});
+$("competition").onchange=render;$("search").oninput=render;$("reload").onclick=load;
+$("saveKeys").onclick=()=>{keys.football=$("footballKey").value.trim();keys.cricket=$("cricketKey").value.trim();load()};
+setInterval(()=>{if((sport==="football"&&keys.football)||(sport==="cricket"&&keys.cricket))load()},60000);
+</script>
+</body>
+</html>
